@@ -8,8 +8,38 @@
     <script src="js/utils.js"></script>
   </head>
   <body>
-    <div class="container text-center">
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+    <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
+        <div class="container-fluid"> 
+            <a class="navbar-brand"> Gabinet </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">O nas</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="d-flex">
+                <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="loginModal">Login</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+
+
+
+
+
+
+
+
+
+
+        <section class="modals">
         <div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
@@ -29,6 +59,7 @@
                 </div>
             </div>
         </div>
+        </section>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
   </body>
