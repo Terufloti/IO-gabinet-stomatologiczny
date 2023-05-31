@@ -1,0 +1,12 @@
+.container-center-register-success {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.text-center-register-success {
+    padding: 2%;
+    border-radius: 20px;
+    text-align: center;
+}
