@@ -5,6 +5,8 @@ function validateRegistrationForm() {
   var email = document.getElementById('email-register').value;
   var phone = document.getElementById('phone-register').value;
   var past_treatment = document.getElementById('past-treatment-registration').value;
+  var userName = document.getElementById('name-register').value;
+  var surname = document.getElementById('surname-register').value;
 
   var isValid = true;
 
@@ -78,6 +80,32 @@ function validateRegistrationForm() {
     document.getElementById('phone-register').classList.add('is-valid');
     document.getElementById('validationServerPhoneFeedback-fail').textContent = '';
     document.getElementById('validationServerPhoneFeedback-success').textContent = 'Wygląda OK!';
+  }
+
+  if (!/^[A-Z][a-zA-Z]*$/.test(userName)) {
+    document.getElementById('name-register').classList.remove('is-valid');
+    document.getElementById('name-register').classList.add('is-invalid');
+    document.getElementById('validationServerNameFeedback-success').textContent = '';
+    document.getElementById('validationServerNameFeedback-fail').textContent = 'Proszę podać poprawne imie!';
+    isValid = false;
+  } else {
+    document.getElementById('name-register').classList.remove('is-invalid');
+    document.getElementById('name-register').classList.add('is-valid');
+    document.getElementById('validationServerNameFeedback-fail').textContent = '';
+    document.getElementById('validationServerNameFeedback-success').textContent = 'Wygląda OK!';
+  }
+
+  if (!/^[A-Z][a-zA-Z]*$/.test(surname)) {
+    document.getElementById('surname-register').classList.remove('is-valid');
+    document.getElementById('surname-register').classList.add('is-invalid');
+    document.getElementById('validationServerSurnameFeedback-success').textContent = '';
+    document.getElementById('validationServerSurnameFeedback-fail').textContent = 'Proszę podać poprawne nazwisko!';
+    isValid = false;
+  } else {
+    document.getElementById('surname-register').classList.remove('is-invalid');
+    document.getElementById('surname-register').classList.add('is-valid');
+    document.getElementById('validationServerSurnameFeedback-fail').textContent = '';
+    document.getElementById('validationServerSurnameFeedback-success').textContent = 'Wygląda OK!';
   }
 
   return isValid;

@@ -122,6 +122,15 @@
                                 <div id="validationServerPhoneFeedback-fail" class="invalid-feedback"></div>
                                 <div id="validationServerPhoneFeedback-success" class="valid-feedback"></div>
                                 <br />
+                                <input type="login" class="form-control" id="name-register" name="nameRegister" placeholder="Imie*" aria-describedby="nameHelp">
+                                <div id="validationServerNameFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerNameFeedback-success" class="valid-feedback"></div>
+                                <div id="nameHelp" class="form-text">Imie musi zaczynać się wielką literą.</div>
+                                <input type="login" class="form-control" id="surname-register" name="surnameRegister" placeholder="Nazwisko*" aria-describedby="surnameHelp">
+                                <div id="validationServerSurnameFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerSurnameFeedback-success" class="valid-feedback"></div>
+                                <div id="surnameHelp" class="form-text">Nazwisko musi zaczynać się wielką literą.</div>
+                                <br />
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="past-treatment-registration" name="past-treatment" checked>
                                     <label class="form-check-label" for="past-treatment-registration">Czy leczyłeś/aś się już u nas?</label>
@@ -151,13 +160,15 @@
                     };
 
                     if (response.status === 'success') {
-                        alertTriggering('Wszystkie dane są poprawne. Nastąpi przekierowanie!', true);
+                        var message = 'Wszystkie dane są poprawne. Nastąpi przekierowanie!';
                         var formData = new FormData();
                         formData.append('login', document.getElementById('login-register').value);
                         formData.append('haslo-register', document.getElementById('inputPassword-register').value);
                         formData.append('email', document.getElementById('email-register').value);
                         formData.append('phone-number', document.getElementById('phone-register').value);
                         formData.append('past-treatment', document.getElementById('past-treatment-registration').value);
+                        formData.append('nameRegister', document.getElementById('name-register').value);
+                        formData.append('surnameRegister', document.getElementById('surname-register').value);
 
                         fetch('php/register.php', {
                             method: 'POST',
@@ -166,8 +177,10 @@
                             return response.json();
                         }).then(function(data) {
                             if (data.status === 'success') {
-                                alertTriggering('Rejestracja zakończona sukcesem.', true);
-                                window.location.href = 'php/register-success.php';
+                                alertTriggering('Rejestracja zakończona sukcesem.'+message, true);
+                                setTimeout(function() {
+                                    window.location.href = 'php/register-success.php';
+                                },3000)
                             } else {
                                 alertTriggering('Błąd podczas rejestracji: ' + data.message, false);
                             }

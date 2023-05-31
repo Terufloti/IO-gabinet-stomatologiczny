@@ -9,6 +9,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = $_POST['email'];
     $phone = $_POST['phone-number'];
     $past = $_POST['past-treatment'];
+    $name = $_POST['nameRegister'];
+    $surname = $_POST['surnameRegister'];
 
     $servername = "localhost";
     $username = "root";
@@ -28,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $response = array('status' => 'error', 'message' => 'Użytkownik o podanym loginie lub adresie e-mail już istnieje.');
         echo json_encode($response);
     } else {
-        $sql = "INSERT INTO `login` (`login`, `password`, `function`, `email`, `phone`, `past`) VALUES ('$login', '$password', '10', '$email', '$phone', '$past');";
+        $sql = "INSERT INTO `login` (`login`, `password`, `function`, `email`, `phone`, `past`, `name`, `surname`) VALUES ('$login', '$password', '10', '$email', '$phone', '$past', '$name', '$surname');";
 
         if ($conn->query($sql) === TRUE) {
             $response = array('status' => 'success', 'message' => 'Rejestracja zakończona sukcesem.');
