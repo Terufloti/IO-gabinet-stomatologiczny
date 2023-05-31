@@ -9,6 +9,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gabinet stomatologiczny</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
     <script src="js/utils.js"></script>
     <link rel="stylesheet" href="css/style.css">
   </head>
@@ -27,7 +30,16 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">O nas</a>
+                        <a class="nav-link active" id="nav-link-change" aria-current="page" href="#">O nas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">Nasi lekarze</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">Cennik</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="#">Zaproponuj spotkanie</a>
                     </li>
                 </ul>
             </div>
@@ -44,7 +56,10 @@
     
     <div class="container">
         <section class="main">
-
+            <div class="row" id="welcomeMessage"></div>
+            <div class="row">
+                <div id="mycalendar"></div>
+            </div>
         </section>
 
 
@@ -176,6 +191,7 @@
         if (<?php echo json_encode(sprawdzCiasteczko()); ?>) {
             loggedCustomer();
             addHeaderWithName("Kacper");
+            properCreateCalendar();
         }
     </script>
   </body>

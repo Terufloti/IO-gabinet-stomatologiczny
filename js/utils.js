@@ -245,7 +245,7 @@ function loginAlertTriggering(message, isValid) {
 }
 
 function addHeaderWithName(name) {
-  var section = document.querySelector('.main');
+  var section = document.getElementById('welcomeMessage');
   if(section) {
     var header = document.createElement('h1');
     header.textContent = "Witaj, " + name + "!";
@@ -253,7 +253,53 @@ function addHeaderWithName(name) {
   }
 }
 
+function properCreateCalendar() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('mycalendar');
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      timeZone: 'UTC',
+      initialView: 'timeGridWeek',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'timeGridWeek,timeGridDay'
+      },
+      allDaySlot: false,
+      slotMinTime: '08:00',
+      slotMaxTime: '21:00',
+      slotDuration: '00:30:00',
+      locale: 'pl',
+      slotLabelFormat: {
+        hour: 'numeric',
+        minute: '2-digit',
+        omitZeroMinute: false,
+        meridiem: 'narrow'
+      },
+      events: [
+      {
+        title: 'Event 1',
+        start: '2023-05-31T10:00:00',
+        end: '2023-05-31T12:00:00'
+      },
+      {
+        title: 'Event 2',
+        start: '2023-06-02T14:00:00',
+        end: '2023-06-02T16:00:00'
+      }
+      ]
+  });
+
+  calendar.render();
+  });
+}
+
 function loggedCustomer(){
+    var navLink = document.getElementById('nav-link-change');
+    if(navLink){
+      navLink.textContent = "Kalendarz"
+    }
+
     var btnGroup = document.querySelector('.btn-group');
     if(btnGroup) {
       var logoutButton = document.createElement('button');
@@ -269,5 +315,16 @@ function loggedCustomer(){
         document.cookie = 'cred=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         location.reload();
       });
+    }
+    var navList = document.querySelector('.navbar-nav');
+    if(navList) {
+      var newItem = document.createElement('li');
+      newItem.classList.add('nav_item');
+      var newLink = document.createElement('a');
+      newLink.classList.add('nav-link');
+      newLink.setAttribute('aria-current', 'page');
+      newLink.href = '#';
+      newLink.textContent = 'Zaproponuj spotkanie';
+      newItem.appendChild(newLink);
     }
   }
