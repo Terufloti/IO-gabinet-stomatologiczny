@@ -344,15 +344,206 @@ function loggedCustomer(){
         location.reload();
       });
     }
+
     var navList = document.querySelector('.navbar-nav');
     if(navList) {
-      var newItem = document.createElement('li');
-      newItem.classList.add('nav_item');
-      var newLink = document.createElement('a');
-      newLink.classList.add('nav-link');
-      newLink.setAttribute('aria-current', 'page');
-      newLink.href = '#';
-      newLink.textContent = 'Zaproponuj spotkanie';
-      newItem.appendChild(newLink);
+      var newButton = document.createElement('button');
+      newButton.type = 'button';
+      newButton.classList.add('btn', 'btn-outline-light');
+      newButton.textContent = 'Zaproponuj spotkanie';
+      newButton.setAttribute('data-bs-toggle', 'modal');
+      newButton.setAttribute('data-bs-target', '#proposalModal');
+      navList.appendChild(newButton);
+      createModal('proposalModal','Zaproponuj spotkanie','True','True','True');
     }
   }
+
+  function createModal(id, header, time, date, radio) {
+    var modalContainer = document.createElement('div');
+    modalContainer.classList.add('modal', 'fade', 'text-black');
+    modalContainer.dataset.bsTheme = 'light';
+    modalContainer.id = id;
+    modalContainer.dataset.bsKeyboard = 'false';
+    modalContainer.tabIndex = '-1';
+    modalContainer.setAttribute('aria-labelledby', 'proposalModalLabel');
+    modalContainer.setAttribute('aria-hidden', 'true');
+  
+    var modalDialog = document.createElement('div');
+    modalDialog.classList.add('modal-dialog', 'modal-dialog-centered');
+  
+    var modalContent = document.createElement('div');
+    modalContent.classList.add('modal-content');
+    modalContent.dataset.bsTheme = 'light';
+  
+    var modalHeader = document.createElement('div');
+    modalHeader.classList.add('modal-header');
+  
+    var modalTitle = document.createElement('h1');
+    modalTitle.classList.add('modal-title', 'fs-5');
+    modalTitle.id = 'staticBackdropLabel';
+    modalTitle.textContent = header;
+  
+    var closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.classList.add('btn-close');
+    closeButton.dataset.bsDismiss = 'modal';
+    closeButton.setAttribute('aria-label', 'Close');
+    closeButton.style.backgroundColor = 'black';
+  
+    var modalBody = document.createElement('div');
+    modalBody.classList.add('modal-body');
+  
+    if(time) {
+      var inputGroupTime = document.createElement('div');
+      inputGroupTime.classList.add('input-group');
+    
+      var inputButtonTime = document.createElement('button');
+      inputButtonTime.type = 'button';
+      inputButtonTime.classList.add('btn', 'btn-outline-secondary', 'disabled');
+      inputButtonTime.id = 'timeButton';
+      inputButtonTime.textContent = 'Wybierz czas';
+    
+      var inputTime = document.createElement('input');
+      inputTime.type = 'time';
+      inputTime.id = 'datetimepicker1';
+      inputTime.classList.add('form-control');
+      inputTime.setAttribute('data-ignore-readonly', true);
+      inputTime.placeholder = '';
+
+      var inputGroupAddonTime = document.createElement('span');
+      inputGroupAddonTime.classList.add('input-group-addon');
+    }
+    
+    if(date) {
+      var inputGroupDate = document.createElement('div');
+      inputGroupDate.classList.add('input-group');
+      
+      var inputButtonDate = document.createElement('button');
+      inputButtonDate.type = 'button';
+      inputButtonDate.classList.add('btn', 'btn-outline-secondary', 'disabled');
+      inputButtonDate.id = 'dateButton';
+      inputButtonDate.textContent = 'Wybierz datę';
+    
+      var inputDate = document.createElement('input');
+      inputDate.type = 'date';
+      inputDate.id = 'datetimepicker2';
+      inputDate.classList.add('form-control');
+      inputDate.setAttribute('data-ignore-readonly', true);
+      inputDate.placeholder = '';
+
+      var inputGroupAddonDate = document.createElement('span');
+      inputGroupAddonDate.classList.add('input-group-addon');
+    }
+    
+    if(radio) {
+      var formCheck1 = document.createElement('div');
+      formCheck1.classList.add('form-check');
+    
+      var inputDentist1 = document.createElement('input');
+      inputDentist1.type = 'radio';
+      inputDentist1.id = 'flexRadioDefault1';
+      inputDentist1.classList.add('form-check-input');
+      inputDentist1.name = 'flexRadioDefault';
+    
+      var labelDentist1 = document.createElement('label');
+      labelDentist1.classList.add('form-check-label');
+      labelDentist1.setAttribute('for', 'flexRadioDefault1');
+      labelDentist1.textContent = 'Lek. Stom. Kacper Farion';
+    
+      var formCheck2 = document.createElement('div');
+      formCheck2.classList.add('form-check');
+    
+      var inputDentist2 = document.createElement('input');
+      inputDentist2.type = 'radio';
+      inputDentist2.id = 'flexRadioDefault2';
+      inputDentist2.classList.add('form-check-input');
+      inputDentist2.name = 'flexRadioDefault';
+      inputDentist2.checked = true;
+    
+      var labelDentist2 = document.createElement('label');
+      labelDentist2.classList.add('form-check-label');
+      labelDentist2.setAttribute('for', 'flexRadioDefault2');
+      labelDentist2.textContent = 'Lek. Stom. Bartłomiej Kozieł';
+    
+      formCheck1.appendChild(inputDentist1);
+      formCheck1.appendChild(labelDentist1);
+    
+      formCheck2.appendChild(inputDentist2);
+      formCheck2.appendChild(labelDentist2);
+    }
+    
+    var inputGroupAddonDentist = document.createElement('span');
+    inputGroupAddonDentist.classList.add('input-group-addon');
+  
+    var timeIcon = document.createElement('span');
+    timeIcon.classList.add('glyphicon', 'glyphicon-time');
+  
+    modalHeader.appendChild(modalTitle);
+    modalHeader.appendChild(closeButton);
+    if(time) {
+      inputGroupAddonTime.appendChild(timeIcon);
+      inputGroupTime.appendChild(inputButtonTime);
+      inputGroupTime.appendChild(inputTime);
+      inputGroupTime.appendChild(inputGroupAddonTime);
+    }
+    
+    if(date) {
+      inputGroupAddonDate.appendChild(timeIcon);
+      inputGroupDate.appendChild(inputButtonDate);
+      inputGroupDate.appendChild(inputDate);
+      inputGroupDate.appendChild(inputGroupAddonDate);
+    }
+    
+    var alertPlaceholder = document.createElement('div');
+    alertPlaceholder.id = 'proposal-alert-placeholder';
+  
+    var modalFooter = document.createElement('div');
+    modalFooter.classList.add('modal-footer');
+  
+    var closeButton2 = document.createElement('button');
+    closeButton2.type = 'button';
+    closeButton2.classList.add('btn', 'btn-outline-secondary');
+    closeButton2.dataset.bsDismiss = 'modal';
+    closeButton2.textContent = 'Close';
+  
+    var proposalButton = document.createElement('button');
+    proposalButton.type = 'submit';
+    proposalButton.id = 'proposal-button';
+    proposalButton.classList.add('btn', 'btn-outline-warning');
+    proposalButton.textContent = 'Zaproponuj!';
+  
+    modalHeader.appendChild(modalTitle);
+    modalHeader.appendChild(closeButton);
+  
+    modalFooter.appendChild(closeButton2);
+    modalFooter.appendChild(proposalButton);
+  
+    modalContent.appendChild(modalHeader);
+    modalContent.appendChild(modalBody);
+    modalContent.appendChild(modalFooter);
+  
+    modalDialog.appendChild(modalContent);
+    modalContainer.appendChild(modalDialog);
+  
+    var modalsSection = document.querySelector('section.modals');
+    modalsSection.appendChild(modalContainer);
+
+    if(time) {
+      modalBody.appendChild(inputGroupTime);
+      modalBody.appendChild(document.createElement('br'));
+    }
+    if(date) {
+      modalBody.appendChild(inputGroupDate);
+      modalBody.appendChild(document.createElement('br'));
+    }
+    if(radio) {
+      modalBody.appendChild(formCheck1);
+      modalBody.appendChild(formCheck2);
+    }
+    
+    modalBody.appendChild(alertPlaceholder);
+  }
+  
+  
+  
+  
