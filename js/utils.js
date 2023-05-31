@@ -244,6 +244,15 @@ function loginAlertTriggering(message, isValid) {
   alertPlaceholder.innerHTML = alertHTML;
 }
 
+function addHeaderWithName(name) {
+  var section = document.querySelector('.main');
+  if(section) {
+    var header = document.createElement('h1');
+    header.textContent = "Witaj, " + name + "!";
+    section.appendChild(header);
+  }
+}
+
 function loggedCustomer(){
     var btnGroup = document.querySelector('.btn-group');
     if(btnGroup) {

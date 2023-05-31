@@ -43,79 +43,84 @@
     </nav>
     
     <div class="container">
-        <section class="modals">
-        <div class="modal fade text-black" data-bs-theme="light" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content" data-bs-theme="light">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Zaloguj</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color: black;"></button>
-                    </div>
-                    <form id="login-form" method="POST" action="php/login.php">
-                        <div class="modal-body">
-                            <input type="login" class="form-control" id="inputLogin-login" name="login-login" placeholder="Login">
-                            <div id="validationServerLogin-LoginFeedback-fail" class="invalid-feedback"></div>
-                            <div id="validationServerLogin-LoginFeedback-success"class="valid-feedback"></div>
-                            <br />
-                            <input type="password" id="inputPassword-login" name="haslo-login" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Hasło">
-                            <div id="validationServerPassword-LoginFeedback-fail" class="invalid-feedback"></div>
-                            <div id="validationServerPassword-LoginFeedback-success"class="valid-feedback"></div>
-                            <br />
-                            <div id="login-alert-placeholder"></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="login-button" class="btn btn-outline-success">Loguj!</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="modal fade text-black" id="registerModal" data-bs-theme="light" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Zarejestruj się u nas!</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <form id="register-form" method="POST" action="php/register.php">
-                        <div class="modal-body">
-                            <input type="login" class="form-control" id="login-register" name="login" placeholder="Login*" aria-describedby="loginHelp">
-                            <div id="validationServerUsernameFeedback-fail" class="invalid-feedback"></div>
-                            <div id="validationServerUsernameFeedback-success" class="valid-feedback"></div>
-                            <div id="loginHelp" class="form-text">Login musi zaczynać się wielką literą.</div>
-                            <br />
-                            <input type="password" id="inputPassword-register" name="haslo-register" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Hasło*" aria-describedby="passwordHelp">
-                            <div id="validationServerPassword01Feedback-fail" class="invalid-feedback"></div>
-                            <div id="validationServerPassword01Feedback-success" class="valid-feedback"></div>
-                            <div id="passwordHelp" class="form-text">Hasło musi zawierać wielką literę, cyfrę, znak specjalny oraz być długie na conajmniej 10 znaków.</div>
-                            <input type="password" id="inputPassword-register2" name="haslo-register" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Powtórz hasło*">
-                            <div id="validationServerPasswordFeedback-fail" class="invalid-feedback"></div>
-                            <div id="validationServerPasswordFeedback-success" class="valid-feedback"></div>
-                            <br />
-                            <input type="email" class="form-control" id="email-register" name="email" placeholder="Email*">
-                            <div id="validationServerEmailFeedback-fail" class="invalid-feedback"></div>
-                            <div id="validationServerEmailFeedback-success" class="valid-feedback"></div>
-                            <br />
-                            <input type="text" class="form-control" id="phone-register" name="phone-number" placeholder="Numer telefonu* np. (+48999999999)">
-                            <div id="validationServerPhoneFeedback-fail" class="invalid-feedback"></div>
-                            <div id="validationServerPhoneFeedback-success" class="valid-feedback"></div>
-                            <br />
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="past-treatment-registration" name="past-treatment" checked>
-                                <label class="form-check-label" for="past-treatment-registration">Czy leczyłeś/aś się już u nas?</label>
-                            </div>
-                            <div id="alert-placeholder"></div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="register-button" class="btn btn-outline-success">Zarejestruj!</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <section class="main">
 
+        </section>
+
+
+
+        <section class="modals">
+            <div class="modal fade text-black" data-bs-theme="light" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content" data-bs-theme="light">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Zaloguj</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color: black;"></button>
+                        </div>
+                        <form id="login-form" method="POST" action="php/login.php">
+                            <div class="modal-body">
+                                <input type="login" class="form-control" id="inputLogin-login" name="login-login" placeholder="Login">
+                                <div id="validationServerLogin-LoginFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerLogin-LoginFeedback-success"class="valid-feedback"></div>
+                                <br />
+                                <input type="password" id="inputPassword-login" name="haslo-login" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Hasło">
+                                <div id="validationServerPassword-LoginFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerPassword-LoginFeedback-success"class="valid-feedback"></div>
+                                <br />
+                                <div id="login-alert-placeholder"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" id="login-button" class="btn btn-outline-success">Loguj!</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade text-black" id="registerModal" data-bs-theme="light" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="staticBackdropLabel">Zarejestruj się u nas!</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form id="register-form" method="POST" action="php/register.php">
+                            <div class="modal-body">
+                                <input type="login" class="form-control" id="login-register" name="login" placeholder="Login*" aria-describedby="loginHelp">
+                                <div id="validationServerUsernameFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerUsernameFeedback-success" class="valid-feedback"></div>
+                                <div id="loginHelp" class="form-text">Login musi zaczynać się wielką literą.</div>
+                                <br />
+                                <input type="password" id="inputPassword-register" name="haslo-register" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Hasło*" aria-describedby="passwordHelp">
+                                <div id="validationServerPassword01Feedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerPassword01Feedback-success" class="valid-feedback"></div>
+                                <div id="passwordHelp" class="form-text">Hasło musi zawierać wielką literę, cyfrę, znak specjalny oraz być długie na conajmniej 10 znaków.</div>
+                                <input type="password" id="inputPassword-register2" name="haslo-register" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Powtórz hasło*">
+                                <div id="validationServerPasswordFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerPasswordFeedback-success" class="valid-feedback"></div>
+                                <br />
+                                <input type="email" class="form-control" id="email-register" name="email" placeholder="Email*">
+                                <div id="validationServerEmailFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerEmailFeedback-success" class="valid-feedback"></div>
+                                <br />
+                                <input type="text" class="form-control" id="phone-register" name="phone-number" placeholder="Numer telefonu* np. (+48999999999)">
+                                <div id="validationServerPhoneFeedback-fail" class="invalid-feedback"></div>
+                                <div id="validationServerPhoneFeedback-success" class="valid-feedback"></div>
+                                <br />
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="past-treatment-registration" name="past-treatment" checked>
+                                    <label class="form-check-label" for="past-treatment-registration">Czy leczyłeś/aś się już u nas?</label>
+                                </div>
+                                <div id="alert-placeholder"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" id="register-button" class="btn btn-outline-success">Zarejestruj!</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </section>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
@@ -170,6 +175,7 @@
     <script>
         if (<?php echo json_encode(sprawdzCiasteczko()); ?>) {
             loggedCustomer();
+            addHeaderWithName("Kacper");
         }
     </script>
   </body>
