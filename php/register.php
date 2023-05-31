@@ -2,6 +2,11 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+session_start();
+if (!isset($_SESSION['registration_success']) || $_SESSION['registration_success'] !== true) {
+    header("Location: /IO-gabinet-stomatologiczny/index.php");
+    exit;
+}
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $login = $_POST['login'];
@@ -46,4 +51,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $conn->close();
 }
+unset($_SESSION['registration_success']);
 ?>
