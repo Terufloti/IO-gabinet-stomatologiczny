@@ -1,7 +1,8 @@
 <?php
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $login = $_POST['login'];
-    $password = $_POST['haslo'];
+    $login = $_POST['login-login'];
+    $password = $_POST['haslo-login'];
+    
     $servername = "localhost";
     $username = "root";
     $db_password = "";
@@ -14,19 +15,29 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     $sql = "SELECT * FROM login WHERE login = '$login'";
-
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        if ($row['password'] == $password) {
-            header("Location: index_login.php");
-            exit();
+        if ($row['password'] === $password) {
+            $response = array(
+                "status" => "success",
+                "message" => "Logowanie zakończone sukcesem."
+            );
+            echo json_encode($response);
         } else {
-            echo "Błędne hasło";
+            $response = array(
+                "status" => "invalid_password",
+                "message" => "Niepoprawne hasło dla tego loginu!"
+            );
+            echo json_encode($response);
         }
     } else {
-        echo "Niepoprawny login";
+        $response = array(
+            "status" => "invalid_login",
+            "message" => "Niepoprawny login!"
+        );
+        echo json_encode($response);
     }
 
     $conn->close();

@@ -98,3 +98,167 @@ function alertTriggering(message, isValid) {
   }
   alertPlaceholder.innerHTML = alertHTML
 }
+
+function validateLoginForm() {
+  var login = document.getElementById('inputLogin-login').value;
+  var password = document.getElementById('inputPassword-login').value;
+  var isValid = true;
+
+  if(login === "") {
+    document.getElementById('inputLogin-login').classList.add('is-invalid');
+    document.getElementById('inputLogin-login').classList.remove('is-valid');
+    document.getElementById('validationServerLogin-LoginFeedback-fail').textContent = 'Podano pusty login!';
+    document.getElementById('validationServerLogin-LoginFeedback-success').textContent = '';
+    isValid = false;
+  } 
+  else {
+    if(!/^[A-Z][a-zA-Z]*$/.test(login)) {
+      document.getElementById('inputLogin-login').classList.add('is-invalid');
+      document.getElementById('inputLogin-login').classList.remove('is-valid');
+      document.getElementById('validationServerLogin-LoginFeedback-fail').textContent = 'Podano niepoprawny login (nie spełniono kryteriów z rejestracji)!';
+      document.getElementById('validationServerLogin-LoginFeedback-success').textContent = '';
+      isValid = false;
+    }
+    else {
+      document.getElementById('inputLogin-login').classList.add('is-valid');
+      document.getElementById('inputLogin-login').classList.remove('is-invalid');
+      document.getElementById('validationServerLogin-LoginFeedback-fail').textContent = '';
+      document.getElementById('validationServerLogin-LoginFeedback-success').textContent = 'Sprawdzamy to w bazie...';
+    }
+  }
+
+  if(password === "") {
+    document.getElementById('inputPassword-login').classList.add('is-invalid');
+    document.getElementById('inputPassword-login').classList.remove('is-valid');
+    document.getElementById('validationServerPassword-LoginFeedback-fail').textContent = 'Podano puste hasło!';
+    document.getElementById('validationServerPassword-LoginFeedback-success').textContent = '';
+    isValid = false;
+  }
+  else {
+    if((!/(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{10,}/.test(password))) {
+      document.getElementById('inputPassword-login').classList.add('is-invalid');
+      document.getElementById('inputPassword-login').classList.remove('is-valid');
+      document.getElementById('validationServerPassword-LoginFeedback-fail').textContent = 'Podano niepoprawne hasło (nie spełniono kryteriów z rejestracji)!';
+      document.getElementById('validationServerPassword-LoginFeedback-success').textContent = '';
+      isValid = false;
+    }
+    else {
+      document.getElementById('inputPassword-login').classList.add('is-valid');
+      document.getElementById('inputPassword-login').classList.remove('is-invalid');
+      document.getElementById('validationServerPassword-LoginFeedback-fail').textContent = '';
+      document.getElementById('validationServerPassword-LoginFeedback-success').textContent = 'Sprawdzamy to w bazie...';
+    }
+  }
+
+  if(isValid) {
+    var formData = new FormData();
+    formData.append('login-login', login);
+    formData.append('haslo-login', password);
+    fetch('php/login.php', {
+      method: 'POST',
+      body: formData
+    }).then(function(response) {
+      return response.json();
+    }).then(function(data) {
+      handleLoginResponse(data);
+      location.reload();
+    }).catch(function(error) {
+      message = "Wystąpił błąd podczas logowania : " + error;
+      loginAlertTriggering(message, false);
+    });
+  }
+
+  return false;
+}
+
+function createCookie(name, value, days) {
+  var expires ="";
+  if(days) {
+    var date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    expires = "; expires=" + date.toUTCString();
+  }
+  document.cookie = name + "=" + value + expires + "; path=/";
+}
+function createCredCookie(login, passwd, days) {
+  var cred = login + "|" + passwd;
+  createCookie("cred",cred,days);
+}
+
+function handleLoginResponse(response) {
+  var feedbackLoginFail = document.getElementById('validationServerLogin-LoginFeedback-fail');
+  var feedbackLoginSuccess = document.getElementById('validationServerLogin-LoginFeedback-success');
+  var feedbackPasswordFail = document.getElementById('validationServerPassword-LoginFeedback-fail');
+  var feedbackPasswordSuccess = document.getElementById('validationServerPassword-LoginFeedback-success');
+  var feedbackLogin = document.getElementById('inputLogin-login');
+  var feedbackPassword = document.getElementById('inputPassword-login');
+
+  if (response.status === "success") {
+    var login = document.getElementById('inputLogin-login').value;
+    var password = document.getElementById('inputPassword-login').value;
+    
+    feedbackLoginFail.textContent = '';
+    feedbackLoginSuccess.textContent = 'Wygląda OK!';
+    feedbackLogin.classList.add('is-valid');
+    feedbackLogin.classList.remove('is-invalid');
+    feedbackPasswordFail.textContent = '';
+    feedbackPasswordSuccess.textContent = 'Wygląda OK!';
+    loginAlertTriggering('Logowanie zakończone sukcesem. Następuje przekierowanie...', true);
+
+    createCredCookie(login, password, 30);
+    setTimeout(function(){
+      location.reload(); 
+    },5000)
+  }
+  else if (response.status === "invalid_login") {
+    feedbackLogin.classList.add('is-invalid');
+    feedbackLogin.classList.remove('is-valid');
+    feedbackLoginFail.textContent = 'Niepoprawny login!';
+    feedbackLoginSuccess.textContent = '';
+    feedbackPassword.classList.add('is-invalid');
+    feedbackPassword.classList.remove('is-valid');
+    feedbackPasswordFail.textContent = 'Niepoprawny login';
+    feedbackPasswordSuccess.textContent = '';
+  } 
+  else if (response.status === "invalid_password") {
+    feedbackPassword.classList.add('is-invalid');
+    feedbackPassword.classList.remove('is-valid');
+    feedbackPasswordFail.textContent = 'Niepoprawne hasło dla tego loginu!';
+    feedbackPasswordSuccess.textContent = '';
+    feedbackLoginFail.textContent ='';
+    feedbackLoginSuccess.textContent = 'Wygląda OK!';
+    feedbackLogin.classList.add('is-valid');
+    feedbackLogin.classList.remove('is-invalid');
+  }
+}
+
+function loginAlertTriggering(message, isValid) {
+  var alertPlaceholder = document.getElementById('login-alert-placeholder');
+  var alertHTML = '';
+  if(isValid) {
+    alertHTML = '<div class="alert alert-success" role="alert">' + message + '</div>';
+  }
+  else {
+    alertHTML = '<div class="alert alert-danger" role="alert">' + message + '</div>';
+  }
+  alertPlaceholder.innerHTML = alertHTML;
+}
+
+function loggedCustomer(){
+    var btnGroup = document.querySelector('.btn-group');
+    if(btnGroup) {
+      var logoutButton = document.createElement('button');
+      logoutButton.type = 'button';
+      logoutButton.classList.add('btn', 'btn-outline-danger');
+      logoutButton.textContent = 'Wyloguj się';
+      while (btnGroup.firstChild) {
+        btnGroup.firstChild.remove();
+      }
+      btnGroup.appendChild(logoutButton);
+
+      logoutButton.addEventListener('click', function() {
+        document.cookie = 'cred=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        location.reload();
+      });
+    }
+  }

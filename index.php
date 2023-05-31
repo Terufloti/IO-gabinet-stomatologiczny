@@ -1,3 +1,7 @@
+<?php
+    require_once 'php/validation.php';
+?>
+
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
   <head>
@@ -9,9 +13,14 @@
     <link rel="stylesheet" href="css/style.css">
   </head>
   <body>
+    <?php
+    if(isset($_COOKIE['cred']) && !empty($_COOKIE['cred'])) {
+        sprawdzCiasteczko();
+    }
+    ?>
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid"> 
-            <a class="navbar-brand">Farion&Kozieł Co.</a>
+            <a class="navbar-brand">Farion & Kozieł Co.</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -23,8 +32,9 @@
                 </ul>
             </div>
 
+            
             <div class="d-flex">
-                <div class="btn-group" role="group" aria-label="Login/register outlined group">
+                <div class="btn-group" role="group" aria-label="Login/register/logout outlined group">
                     <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#registerModal">Zarejestruj się</button>
                     <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#loginModal">Logowanie</button>
                 </div>
@@ -33,11 +43,6 @@
     </nav>
     
     <div class="container">
-
-
-
-
-
         <section class="modals">
         <div class="modal fade text-black" data-bs-theme="light" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -48,13 +53,19 @@
                     </div>
                     <form id="login-form" method="POST" action="php/login.php">
                         <div class="modal-body">
-                            <input type="login" class="form-control" id="login" name="login" placeholder="Login">
+                            <input type="login" class="form-control" id="inputLogin-login" name="login-login" placeholder="Login">
+                            <div id="validationServerLogin-LoginFeedback-fail" class="invalid-feedback"></div>
+                            <div id="validationServerLogin-LoginFeedback-success"class="valid-feedback"></div>
                             <br />
-                            <input type="password" id="inputPassword5" name="haslo" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Hasło">
+                            <input type="password" id="inputPassword-login" name="haslo-login" class="form-control" aria-labelledby="passwordHelpBlock" placeholder="Hasło">
+                            <div id="validationServerPassword-LoginFeedback-fail" class="invalid-feedback"></div>
+                            <div id="validationServerPassword-LoginFeedback-success"class="valid-feedback"></div>
+                            <br />
+                            <div id="login-alert-placeholder"></div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" id="login-button" class="btn btn-outline-success" onclick="checklogin()">Loguj!</button>
+                            <button type="submit" id="login-button" class="btn btn-outline-success">Loguj!</button>
                         </div>
                     </form>
                 </div>
@@ -149,6 +160,17 @@
                 alertTriggering('Dane niepoprawne! Popraw dane.', false);
             }
         });
+    </script>
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            validateLoginForm();
+        });
+    </script>
+    <script>
+        if (<?php echo json_encode(sprawdzCiasteczko()); ?>) {
+            loggedCustomer();
+        }
     </script>
   </body>
 </html>
