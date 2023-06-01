@@ -1,5 +1,6 @@
 <?php
     require_once 'php/validation.php';
+    include 'php/utils.php';
     if(isset($_COOKIE['cred']) && !empty($_COOKIE['cred'])) {
         $result = sprawdzCiasteczko();
         if(!$result) {
@@ -99,7 +100,7 @@
                             <h1 class="modal-title fs-5" id="staticBackdropLabel">Zaloguj</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="background-color: black;"></button>
                         </div>
-                        <form id="login-form" method="POST" action="php/login.php">
+                        <form id="login-form" method="POST" action="php/utils.php?action=login">
                             <div class="modal-body">
                                 <input type="login" class="form-control" id="inputLogin-login" name="login-login" placeholder="Login">
                                 <div id="validationServerLogin-LoginFeedback-fail" class="invalid-feedback"></div>
@@ -126,7 +127,7 @@
                             <h1 class="modal-title fs-5" id="staticBackdropLabel">Zarejestruj się u nas!</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-                        <form id="register-form" method="POST" action="php/register.php">
+                        <form id="register-form" method="POST" action="php/utils.php?action=register">
                             <div class="modal-body">
                                 <input type="login" class="form-control" id="login-register" name="login" placeholder="Login*" aria-describedby="loginHelp">
                                 <div id="validationServerUsernameFeedback-fail" class="invalid-feedback"></div>
@@ -196,8 +197,7 @@
                         formData.append('past-treatment', document.getElementById('past-treatment-registration').value);
                         formData.append('nameRegister', document.getElementById('name-register').value);
                         formData.append('surnameRegister', document.getElementById('surname-register').value);
-
-                        fetch('php/register.php', {
+                        fetch('php/utils.php?action=register', {
                             method: 'POST',
                             body: formData
                         }).then(function(response) {
@@ -229,41 +229,89 @@
     </script>
     <script>
         if (<?php echo json_encode(sprawdzCiasteczko()); ?>) {
-            loggedCustomer();
-            var login = getLoginFromCookie();
-            getNameFromDB(login);
+            var functionalCode = getCookieValue("function");
+            switch(functionalCode) {
+                case '10' :
+                    loggedCustomer();
+                    var login = getLoginFromCookie();
+                    getNameFromDB(login);
 
-            function getNameFromDB(login) {
-                fetch('php/getName.php?login=' + login)
-                .then(response => response.text())
-                .then(data => {
-                    addHeaderWithName(data);
-                })
-                .catch(error => {
-                    console.error('Błąd: ', error);
-                });
-            }
-            properCreateCalendar();
-            $('#datetimepicker1').timepicker({
-                timeFormat: 'H:i',
-                minTime: '8:00',
-                maxTime: '20:00'
-            });
-            $(function() {
-                $("#datetimepicker2").datepicker({
-                    dateFormat: "yy-mm-dd",
-                    beforeShow: function(input, inst) {
-                    setTimeout(function() {
-                        inst.dpDiv.css({
-                        zIndex: 9999
+                    function getNameFromDB(login) {
+                        fetch('php/utils.php?login=' + login + "&action=getName")
+                        .then(response => response.text())
+                        .then(data => {
+                            addHeaderWithName(data);
+                        })
+                        .catch(error => {
+                            console.error('Błąd: ', error);
                         });
-                    }, 0);
                     }
-                });
-                $("#anim").on("change", function() {
-                    $("#datetimepicker2").datepicker("option", "showAnim", $(this).val());
-                });
-            });
+
+                    properCreateCalendar();
+                    $('#datetimepicker1').timepicker({
+                        timeFormat: 'H:i',
+                        minTime: '8:00',
+                        maxTime: '20:00'
+                    });
+                    $(function() {
+                        $("#datetimepicker2").datepicker({
+                            dateFormat: "yy-mm-dd",
+                            beforeShow: function(input, inst) {
+                            setTimeout(function() {
+                                inst.dpDiv.css({
+                                zIndex: 9999
+                                });
+                            }, 0);
+                            }
+                        });
+                        $("#anim").on("change", function() {
+                            $("#datetimepicker2").datepicker("option", "showAnim", $(this).val());
+                        });
+                    });
+                    var isValidProposal = validateProposalForm();
+                    if(isValidProposal) {
+                        var name = getCookieValue("name");
+                        var surname = getCookieValue("surname");
+                        var doctor = selectedDentist;
+                        setTimeout(function() {
+                            var response = {
+                                status: 'success'
+                            };
+
+                            if (response.status === 'success') {
+                                var message = 'Wszystkie dane są poprawne. Nastąpi przekierowanie!';
+                                var formData = new FormData();
+                                formData.append('login', login);
+                                formData.append('name', name);
+                                formData.append('surname', surname);
+                                formData.append('doctor', doctor);
+                                formData.append('date', document.getElementById('datetimepicker1').value);
+                                formData.append('time', document.getElementById('datetimepicker2').value);
+
+                                fetch('php/proposeAppointment.php', {
+                                    method: 'POST',
+                                    body: formData
+                                }).then(function(response) {
+                                    return response.json();
+                                }).then(function(data) {
+                                    if (data.status === 'success') {
+                                        proposalAlertTriggering('Propozycja spotkania zakończona sukcesem.'+message, true);
+                                        setTimeout(function() {
+                                            window.location.href = 'php/proposal-success.php';
+                                        },3000)
+                                    } else {
+                                        proposalAlertTriggering('Błąd podczas składania propozycji: ' + data.message, false);
+                                    }
+                                })
+                            } else {
+                                proposalAlertTriggering('Wystąpił błąd podczas składania propzycji!', false);
+                            }
+                        }, 2000);
+                    }
+                    else {
+
+                    }
+            }
         }
     </script>
   </body>

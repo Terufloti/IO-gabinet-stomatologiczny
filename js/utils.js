@@ -111,6 +111,55 @@ function validateRegistrationForm() {
   return isValid;
 }
 
+function validateProposalForm() {
+  var date = document.getElementsById('datetimepicker1');
+  var time = document.getElementsById('datetimepicker2');
+  var isValid = true;
+
+  const hour = parseInt(time);
+  if(!isNaN(hour) && hour >=8 && hour <= 20) {
+    document.getElementById('datetimepicker1').classList.remove('is-valid');
+    document.getElementById('datetimepicker1').classList.add('is-invalid');
+    document.getElementById('timeAlertPlaceholder-success').textContent = '';
+    document.getElementById('timeAlertPlaceholder-fail').textContent = 'Proszę podać poprawny czas!';
+    isValid = false;
+  }
+  else {
+    document.getElementById('datetimepicker1').classList.add('is-valid');
+    document.getElementById('datetimepicker1').classList.remove('is-invalid');
+    document.getElementById('timeAlertPlaceholder-fail').textContent = '';
+    document.getElementById('timeAlertPlaceholder-success').textContent = 'Wygląda OK!';
+  }
+
+  var currentDate = new Date();
+  var inputDate = new Date(date);
+  if(inputDate < currentDate) {
+    document.getElementById('datetimepicker2').classList.remove('is-valid');
+    document.getElementById('datetimepicker2').classList.add('is-invalid');
+    document.getElementById('dateAlertPlaceholder-success').textContent = '';
+    document.getElementById('dateAlertPlaceholder-fail').textContent = 'Proszę podać poprawną datę!';
+    isValid = false;
+  }
+  else {
+    document.getElementById('datetimepicker2').classList.add('is-valid');
+    document.getElementById('datetimepicker2').classList.remove('is-invalid');
+    document.getElementById('dateAlertPlaceholder-fail').textContent = '';
+    document.getElementById('dateAlertPlaceholder-success').textContent = 'Wygląda OK!';
+  }
+
+}
+function proposalAlertTriggering(message, isValid) {
+  var alertPlaceholder = document.getElementById('proposal-alert-placeholder');
+  var alertHTML = '';
+  if(isValid) {
+    alertHTML = '<div class="alert alert-success" role="alert">' + message + '</div>';
+  }
+  else {
+    alertHTML = '<div class="alert alert-danger" role="alert">' + message + '</div>';
+  }
+  alertPlaceholder.innerHTML = alertHTML;
+}
+
 
 
 
@@ -182,7 +231,7 @@ function validateLoginForm() {
     var formData = new FormData();
     formData.append('login-login', login);
     formData.append('haslo-login', password);
-    fetch('php/login.php', {
+    fetch('php/utils.php?action=login', {
       method: 'POST',
       body: formData
     }).then(function(response) {
@@ -237,6 +286,7 @@ function handleLoginResponse(response) {
     createCredCookie(login, password, 30, "cred");
     createSurnameCookie(login);
     createNameCookie(login);
+    createFunctionCookie(login);
     setTimeout(function(){
       location.reload(); 
     },5000)
@@ -310,7 +360,7 @@ function properCreateCalendar() {
       events: function(fetchInfo, successCallback, failureCallback) {
         var login = getLoginFromCookie();
         var request = new XMLHttpRequest();
-        request.open('GET','php/getAppointments.php?login=' + login, true);
+        request.open('GET','php/utils.php?login=' + login + '&action=getAppointments', true);
         request.onload = function() {
           if(request.status >= 200 && request.status < 400) {
             var appointments = JSON.parse(request.responseText);
@@ -338,31 +388,36 @@ function properCreateCalendar() {
   });
 }
 
+
+function createLogoutButton() {
+  var btnGroup = document.querySelector('.btn-group');
+  if(btnGroup) {
+    var logoutButton = document.createElement('button');
+    logoutButton.id="logout-button";
+    logoutButton.type = 'button';
+    logoutButton.classList.add('btn', 'btn-outline-danger');
+    logoutButton.textContent = 'Wyloguj się';
+    while (btnGroup.firstChild) {
+      btnGroup.firstChild.remove();
+    }
+    btnGroup.appendChild(logoutButton);
+
+    logoutButton.addEventListener('click', function() {
+      deleteCookie("cred");
+      deleteCookie("name");
+      deleteCookie("surname");
+      deleteCookie("function");
+      location.reload();
+    });
+  }
+
+}
 function loggedCustomer(){
     var navLink = document.getElementById('nav-link-change');
     if(navLink){
       navLink.textContent = "Kalendarz"
     }
-
-    var btnGroup = document.querySelector('.btn-group');
-    if(btnGroup) {
-      var logoutButton = document.createElement('button');
-      logoutButton.id="logout-button";
-      logoutButton.type = 'button';
-      logoutButton.classList.add('btn', 'btn-outline-danger');
-      logoutButton.textContent = 'Wyloguj się';
-      while (btnGroup.firstChild) {
-        btnGroup.firstChild.remove();
-      }
-      btnGroup.appendChild(logoutButton);
-
-      logoutButton.addEventListener('click', function() {
-        deleteCookie("cred");
-        deleteCookie("name");
-        deleteCookie("surname");
-        location.reload();
-      });
-    }
+    createLogoutButton();
 
     var navList = document.querySelector('.navbar-nav');
     if(navList) {
@@ -377,6 +432,7 @@ function loggedCustomer(){
     }
   }
 
+var selectedDentist = "";
 function createModal(id, header, time, date, radio) {
   var modalContainer = document.createElement('div');
   modalContainer.classList.add('modal', 'fade', 'text-black');
@@ -429,8 +485,13 @@ function createModal(id, header, time, date, radio) {
     inputTime.setAttribute('data-ignore-readonly', true);
     inputTime.placeholder = '';
 
-    var inputGroupAddonTime = document.createElement('span');
-    inputGroupAddonTime.classList.add('input-group-addon');
+    var timeAlertPlaceholderFail = document.createElement('div');
+    timeAlertPlaceholderFail.id = 'timeAlertPlaceholder-fail';
+    timeAlertPlaceholderFail.classList.add('invalid-feedback');
+    
+    var timeAlertPlaceholderSuccess = document.createElement('div');
+    timeAlertPlaceholderSuccess.id = 'timeAlertPlaceholder-success';
+    timeAlertPlaceholderSuccess.classList.add('valid-feedback');
   }
   
   if(date) {
@@ -450,8 +511,13 @@ function createModal(id, header, time, date, radio) {
     inputDate.setAttribute('data-ignore-readonly', true);
     inputDate.placeholder = '';
 
-    var inputGroupAddonDate = document.createElement('span');
-    inputGroupAddonDate.classList.add('input-group-addon');
+    var dateAlertPlaceholderFail = document.createElement('div');
+    dateAlertPlaceholderFail.id = 'dateAlertPlaceholder-fail';
+    dateAlertPlaceholderFail.classList.add('invalid-feedback');
+
+    var dateAlertPlaceholderSuccess = document.createElement('div');
+    dateAlertPlaceholderSuccess.id = 'dateAlertPlaceholder-success';
+    dateAlertPlaceholderSuccess.classList.add('valid-feedback');
   }
   
   if(radio) {
@@ -462,7 +528,7 @@ function createModal(id, header, time, date, radio) {
     inputDentist1.type = 'radio';
     inputDentist1.id = 'flexRadioDefault1';
     inputDentist1.classList.add('form-check-input');
-    inputDentist1.name = 'flexRadioDefault';
+    inputDentist1.name = 'flexRadioDoctor';
   
     var labelDentist1 = document.createElement('label');
     labelDentist1.classList.add('form-check-label');
@@ -476,7 +542,7 @@ function createModal(id, header, time, date, radio) {
     inputDentist2.type = 'radio';
     inputDentist2.id = 'flexRadioDefault2';
     inputDentist2.classList.add('form-check-input');
-    inputDentist2.name = 'flexRadioDefault';
+    inputDentist2.name = 'flexRadioDoctor';
     inputDentist2.checked = true;
   
     var labelDentist2 = document.createElement('label');
@@ -490,27 +556,17 @@ function createModal(id, header, time, date, radio) {
     formCheck2.appendChild(inputDentist2);
     formCheck2.appendChild(labelDentist2);
   }
-  
-  var inputGroupAddonDentist = document.createElement('span');
-  inputGroupAddonDentist.classList.add('input-group-addon');
-
-  var timeIcon = document.createElement('span');
-  timeIcon.classList.add('glyphicon', 'glyphicon-time');
 
   modalHeader.appendChild(modalTitle);
   modalHeader.appendChild(closeButton);
   if(time) {
-    inputGroupAddonTime.appendChild(timeIcon);
     inputGroupTime.appendChild(inputButtonTime);
     inputGroupTime.appendChild(inputTime);
-    inputGroupTime.appendChild(inputGroupAddonTime);
   }
   
   if(date) {
-    inputGroupAddonDate.appendChild(timeIcon);
     inputGroupDate.appendChild(inputButtonDate);
     inputGroupDate.appendChild(inputDate);
-    inputGroupDate.appendChild(inputGroupAddonDate);
   }
   
   var alertPlaceholder = document.createElement('div');
@@ -549,15 +605,27 @@ function createModal(id, header, time, date, radio) {
 
   if(time) {
     modalBody.appendChild(inputGroupTime);
+    modalBody.appendChild(timeAlertPlaceholderFail);
+    modalBody.appendChild(timeAlertPlaceholderSuccess);
     modalBody.appendChild(document.createElement('br'));
   }
   if(date) {
     modalBody.appendChild(inputGroupDate);
+    modalBody.appendChild(dateAlertPlaceholderFail);
+    modalBody.appendChild(dateAlertPlaceholderSuccess);
     modalBody.appendChild(document.createElement('br'));
   }
   if(radio) {
     modalBody.appendChild(formCheck1);
     modalBody.appendChild(formCheck2);
+
+    inputDentist1.addEventListener('change', function() {
+      selectedDentist = "Kacper Farion";
+    });
+
+    inputDentist2.addEventListener('change',function () {
+      selectedDentist = "Bartłomiej Kozieł";
+    });
   }
   
   modalBody.appendChild(alertPlaceholder);
@@ -577,11 +645,10 @@ function getLoginFromCookie() {
   return "";
 }
 function createNameCookie(login) {
-  return fetch('php/getName.php?login=' + login)
+  return fetch('php/utils.php?login=' + login + '&action=getName')
   .then(response => response.text())
   .then(data => {
-      console.log(data);
-      createCookie("name",data,30);
+      createCookie("name", data, 30);
       return data;
   })
   .catch(error => {
@@ -590,17 +657,42 @@ function createNameCookie(login) {
   });
 }
 function createSurnameCookie(login) {
-  return fetch('php/getSurname.php?login=' + login)
+  return fetch('php/utils.php?login=' + login + '&action=getSurname')
   .then(response => response.text())
   .then(data => {
-      console.log(data);
-      createCookie("surname",data,30);
+      createCookie("surname", data, 30);
       return data;
   })
   .catch(error => {
       console.error('Błąd: ', error);
       throw error;
   });
+}
+function createFunctionCookie(login) {
+  return fetch('php/utils.php?login=' + login + '&action=getFunctionCode')
+  .then(response => response.text())
+  .then(data => {
+    console.log(data);
+    createCookie("function", data, 30)
+    return data;
+  })
+  .catch(error => {
+    console.error('Błąd: ', error);
+    throw error;
+  });
+}
+
+function getCookieValue(cookieName) {
+  const cookies = document.cookie.split(';');
+  for(let i=0;i<cookies.length;i++) {
+    const cookie = cookies[i].trim();
+    if(cookie.startsWith(cookieName + "=")) {
+      const value = cookie.substring(cookieName.length + 1);
+      return value;
+    }
+  }
+  console.error("Błąd wczytwania wartości ciasteczka: " + cookieName);
+  return null;
 }
 function deleteCookie(name) {
   document.cookie = (name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=;');
