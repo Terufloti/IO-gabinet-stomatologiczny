@@ -1,6 +1,16 @@
 <?php
     require_once 'php/validation.php';
-?>
+    if(isset($_COOKIE['cred']) && !empty($_COOKIE['cred'])) {
+        $result = sprawdzCiasteczko();
+        if(!$result) {
+            if (isset($_COOKIE)) {
+                foreach ($_COOKIE as $cookieName => $cookieValue) {
+                    setcookie($cookieName, '', time() - 3600, '/');
+                }
+            }
+        }
+    }
+    ?>
 
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
@@ -24,13 +34,23 @@
 
     <script src="js/utils.js"></script>
     <link rel="stylesheet" href="css/style.css">
+
+    <script>
+        setInterval(function () {
+            if (document.cookie.indexOf("cred") !== -1) {
+                console.log("Ciasteczko 'cred' istnieje.");
+            }
+            else {
+                console.log("Ciasteczko 'cred' nie istnieje.");
+                var logoutButton = document.getElementById("logout-button");
+                if (logoutButton) {
+                    window.location.href = "/IO-gabinet-stomatologiczny/index.php";
+                }
+            }
+        }, 5000);
+    </script>
   </head>
   <body>
-    <?php
-    if(isset($_COOKIE['cred']) && !empty($_COOKIE['cred'])) {
-        sprawdzCiasteczko();
-    }
-    ?>
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark">
         <div class="container-fluid"> 
             <a class="navbar-brand">Farion & Kozieł Corp.</a>
@@ -210,7 +230,19 @@
     <script>
         if (<?php echo json_encode(sprawdzCiasteczko()); ?>) {
             loggedCustomer();
-            addHeaderWithName("Kacper");
+            var login = getLoginFromCookie();
+            getNameFromDB(login);
+
+            function getNameFromDB(login) {
+                fetch('php/getName.php?login=' + login)
+                .then(response => response.text())
+                .then(data => {
+                    addHeaderWithName(data);
+                })
+                .catch(error => {
+                    console.error('Błąd: ', error);
+                });
+            }
             properCreateCalendar();
             $('#datetimepicker1').timepicker({
                 timeFormat: 'H:i',

@@ -206,11 +206,11 @@ function createCookie(name, value, days) {
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     expires = "; expires=" + date.toUTCString();
   }
-  document.cookie = name + "=" + value + expires + "; path=/";
+  document.cookie = name + "=" + value + expires + "; path=";
 }
-function createCredCookie(login, passwd, days) {
+function createCredCookie(login, passwd, days, name) {
   var cred = login + "|" + passwd;
-  createCookie("cred",cred,days);
+  createCookie(name,cred,days);
 }
 
 function handleLoginResponse(response) {
@@ -225,6 +225,7 @@ function handleLoginResponse(response) {
     var login = document.getElementById('inputLogin-login').value;
     var password = document.getElementById('inputPassword-login').value;
     
+    
     feedbackLoginFail.textContent = '';
     feedbackLoginSuccess.textContent = 'Wygląda OK!';
     feedbackLogin.classList.add('is-valid');
@@ -233,7 +234,9 @@ function handleLoginResponse(response) {
     feedbackPasswordSuccess.textContent = 'Wygląda OK!';
     loginAlertTriggering('Logowanie zakończone sukcesem. Następuje przekierowanie...', true);
 
-    createCredCookie(login, password, 30);
+    createCredCookie(login, password, 30, "cred");
+    createSurnameCookie(login);
+    createNameCookie(login);
     setTimeout(function(){
       location.reload(); 
     },5000)
@@ -286,7 +289,7 @@ function properCreateCalendar() {
     var calendarEl = document.getElementById('mycalendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
-      timeZone: 'UTC',
+      timeZone: 'UTC+1',
       initialView: 'timeGridWeek',
       headerToolbar: {
         left: 'prev,next today',
@@ -344,6 +347,7 @@ function loggedCustomer(){
     var btnGroup = document.querySelector('.btn-group');
     if(btnGroup) {
       var logoutButton = document.createElement('button');
+      logoutButton.id="logout-button";
       logoutButton.type = 'button';
       logoutButton.classList.add('btn', 'btn-outline-danger');
       logoutButton.textContent = 'Wyloguj się';
@@ -353,7 +357,9 @@ function loggedCustomer(){
       btnGroup.appendChild(logoutButton);
 
       logoutButton.addEventListener('click', function() {
-        document.cookie = 'cred=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        deleteCookie("cred");
+        deleteCookie("name");
+        deleteCookie("surname");
         location.reload();
       });
     }
@@ -556,7 +562,7 @@ function createModal(id, header, time, date, radio) {
   
   modalBody.appendChild(alertPlaceholder);
 }
-
+//======================================================================
 function getLoginFromCookie() {
   var cookieName = 'cred';
   var cookies = document.cookie.split(";");
@@ -569,4 +575,33 @@ function getLoginFromCookie() {
     }
   }
   return "";
+}
+function createNameCookie(login) {
+  return fetch('php/getName.php?login=' + login)
+  .then(response => response.text())
+  .then(data => {
+      console.log(data);
+      createCookie("name",data,30);
+      return data;
+  })
+  .catch(error => {
+      console.error('Błąd: ', error);
+      throw error;
+  });
+}
+function createSurnameCookie(login) {
+  return fetch('php/getSurname.php?login=' + login)
+  .then(response => response.text())
+  .then(data => {
+      console.log(data);
+      createCookie("surname",data,30);
+      return data;
+  })
+  .catch(error => {
+      console.error('Błąd: ', error);
+      throw error;
+  });
+}
+function deleteCookie(name) {
+  document.cookie = (name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=;');
 }
