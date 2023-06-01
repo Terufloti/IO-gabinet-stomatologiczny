@@ -8,7 +8,7 @@
         switch($action) {
             case 'login': login(); break;
             case 'register': register(); break;
-            case 'proposeAppointments': proposeAppointments(); break;
+            case 'proposeAppointment': proposeAppointments(); break;
             case 'getFunctionCode': getFunctionCode($login); break;
             case 'getName': getName($login); break;
             case 'getSurname': getSurname($login); break;
@@ -119,7 +119,6 @@
             $surname = $_POST['surname'];
             $doctor = $_POST['doctor'];
 
-
             $servername = "localhost";
             $username = "root";
             $db_password = "";
@@ -130,19 +129,22 @@
                 die("Nie można połączyć z bazą danych: " . $conn->connect_error);
             }
 
-            $sqlCheck = "SELECT * FROM `propozycje` WHERE `lekarz` = '$doctor' AND `data` = '$date' AND (`godzina` = ADDTIME('$time', '00:30:00') OR `godzina` = SUBTIME('$time', '00:30:00'));";
+            $sqlCheck = "SELECT * FROM `zaplanowane` WHERE `lekarz` = '$doctor' AND `data` = '$date' AND (`godzina` = ADDTIME('$time', '00:30:00') OR `godzina` = SUBTIME('$time', '00:30:00'));";
             $resultCheck = $conn->query($sqlCheck);
             if($resultCheck->num_rows > 0) {
-                $response = array('status' => 'error', 'message' => 'W tym samym czasie istnieje już inna propozycja spotkania.');
+                $response = array('status' => 'error', 'message' => 'W tym samym czasie istnieje już inne spotkanie.');
+                header('Content-Type: application/json');
                 echo json_encode($response);
             }
             else {
                 $sql = "INSERT INTO `propozycje` (`login`, `imie`, `nazwisko`, `lekarz`, `data`, `godzina`) VALUES ('$login', '$name', '$surname', '$doctor', '$date', '$time');";
                 if ($conn->query($sql) === TRUE) {
                     $response = array('status' => 'success', 'message' => 'Propozycja spotkania została złożona.');
+                    header('Content-Type: application/json');
                     echo json_encode($response);
                 } else {
                     $response = array('status' => 'error', 'message' => 'Błąd podczas składania propozycji spotkania: ' . $conn->error);
+                    header('Content-Type: application/json');
                     echo json_encode($response);
                 }
             }

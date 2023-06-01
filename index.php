@@ -227,8 +227,15 @@
             validateLoginForm();
         });
     </script>
+    <?php
+        $test = sprawdzCiasteczko();
+        json_encode($test);
+        echo $test;
+    ?>
     <script>
-        if (<?php echo json_encode(sprawdzCiasteczko()); ?>) {
+        var ciasteczko =<?php echo json_encode($test) ?>;
+
+        if (ciasteczko) {
             var functionalCode = getCookieValue("function");
             switch(functionalCode) {
                 case '10' :
@@ -268,49 +275,62 @@
                             $("#datetimepicker2").datepicker("option", "showAnim", $(this).val());
                         });
                     });
-                    var isValidProposal = validateProposalForm();
-                    if(isValidProposal) {
-                        var name = getCookieValue("name");
-                        var surname = getCookieValue("surname");
-                        var doctor = selectedDentist;
-                        setTimeout(function() {
-                            var response = {
-                                status: 'success'
-                            };
-
-                            if (response.status === 'success') {
-                                var message = 'Wszystkie dane są poprawne. Nastąpi przekierowanie!';
-                                var formData = new FormData();
-                                formData.append('login', login);
-                                formData.append('name', name);
-                                formData.append('surname', surname);
-                                formData.append('doctor', doctor);
-                                formData.append('date', document.getElementById('datetimepicker1').value);
-                                formData.append('time', document.getElementById('datetimepicker2').value);
-
-                                fetch('php/proposeAppointment.php', {
-                                    method: 'POST',
-                                    body: formData
-                                }).then(function(response) {
-                                    return response.json();
-                                }).then(function(data) {
-                                    if (data.status === 'success') {
-                                        proposalAlertTriggering('Propozycja spotkania zakończona sukcesem.'+message, true);
-                                        setTimeout(function() {
-                                            window.location.href = 'php/proposal-success.php';
-                                        },3000)
-                                    } else {
-                                        proposalAlertTriggering('Błąd podczas składania propozycji: ' + data.message, false);
+                    document.getElementById('proposal-form').addEventListener('submit', function(event){
+                        event.preventDefault();
+                        var isValidProposal = validateProposalForm();
+                        if(isValidProposal) {
+                            var name = getCookieValue("name");
+                            var surname = getCookieValue("surname");
+                            var doctor = checkRadioButton("flexRadioDoctor");
+                            
+                            function checkRadioButton(name) {
+                                var text = 'input[type="radio"][name="' + name + '"]';
+                                var radioButtons = document.querySelectorAll(text);
+                                for(var i=0; i < radioButtons.length; i++) {
+                                    if(radioButtons[i].classList.contains("check")) {
+                                        var lekarz = radioButtons[i].value;
+                                        return lekarz;
                                     }
-                                })
-                            } else {
-                                proposalAlertTriggering('Wystąpił błąd podczas składania propzycji!', false);
+                                }
+                                return "Błąd - nie wybrano lekarza";
                             }
-                        }, 2000);
-                    }
-                    else {
+                                var response = {
+                                    status: 'success'
+                                };
 
-                    }
+                                if (response.status === 'success') {
+                                    var message = 'Wszystkie dane są poprawne. Nastąpi przekierowanie!';
+                                    var formData = new FormData();
+                                    var time = document.getElementById('datetimepicker1').value;
+                                    var date = document.getElementById('datetimepicker2').value
+                                    formData.append('login', login);
+                                    formData.append('name', name);
+                                    formData.append('surname', surname);
+                                    formData.append('doctor', doctor);
+                                    formData.append('date', date);
+                                    formData.append('time', time);
+
+                                    fetch('php/utils.php?action=proposeAppointment', {
+                                        method: 'POST',
+                                        body: formData
+                                    }).then(function(response) {
+                                        return response.json();
+                                    }).then(function(data) {
+                                        if (data.status === 'success') {
+                                            proposalAlertTriggering('Propozycja spotkania zakończona sukcesem. '+message, true);
+                                            setTimeout(function() {
+                                                window.location.href = 'php/proposal-success.php';
+                                            },3000)
+                                        } else {
+                                            proposalAlertTriggering('Błąd podczas składania propozycji: ' + data.message, false);
+                                        }
+                                    })
+                                } else {
+                                    proposalAlertTriggering('Wystąpił błąd podczas składania propzycji!', false);
+                                }
+                        }
+                    });
+                break;
             }
         }
     </script>

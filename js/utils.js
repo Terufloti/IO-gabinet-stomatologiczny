@@ -112,8 +112,8 @@ function validateRegistrationForm() {
 }
 
 function validateProposalForm() {
-  var date = document.getElementsById('datetimepicker1');
-  var time = document.getElementsById('datetimepicker2');
+  var date = document.getElementById('datetimepicker1');
+  var time = document.getElementById('datetimepicker2');
   var isValid = true;
 
   const hour = parseInt(time);
@@ -146,7 +146,7 @@ function validateProposalForm() {
     document.getElementById('dateAlertPlaceholder-fail').textContent = '';
     document.getElementById('dateAlertPlaceholder-success').textContent = 'Wygląda OK!';
   }
-
+  return isValid;
 }
 function proposalAlertTriggering(message, isValid) {
   var alertPlaceholder = document.getElementById('proposal-alert-placeholder');
@@ -238,7 +238,9 @@ function validateLoginForm() {
       return response.json();
     }).then(function(data) {
       handleLoginResponse(data);
-      location.reload();
+      setTimeout(function() {
+        location.reload();
+      },3000);
     }).catch(function(error) {
       message = "Wystąpił błąd podczas logowania : " + error;
       loginAlertTriggering(message, false);
@@ -284,9 +286,15 @@ function handleLoginResponse(response) {
     loginAlertTriggering('Logowanie zakończone sukcesem. Następuje przekierowanie...', true);
 
     createCredCookie(login, password, 30, "cred");
-    createSurnameCookie(login);
-    createNameCookie(login);
-    createFunctionCookie(login);
+    setTimeout(function() {
+      createSurnameCookie(login);
+    }, 500);
+    setTimeout(function() {
+      createNameCookie(login);
+    },500);
+    setTimeout(function() {
+      createFunctionCookie(login);
+    },500);
     setTimeout(function(){
       location.reload(); 
     },5000)
@@ -431,8 +439,6 @@ function loggedCustomer(){
       createModal('proposalModal','Zaproponuj spotkanie','True','True','True');
     }
   }
-
-var selectedDentist = "";
 function createModal(id, header, time, date, radio) {
   var modalContainer = document.createElement('div');
   modalContainer.classList.add('modal', 'fade', 'text-black');
@@ -464,6 +470,11 @@ function createModal(id, header, time, date, radio) {
   closeButton.dataset.bsDismiss = 'modal';
   closeButton.setAttribute('aria-label', 'Close');
   closeButton.style.backgroundColor = 'black';
+
+  var modalForm = document.createElement('form');
+  modalForm.id = "proposal-form";
+  modalForm.method = "POST";
+  modalForm.action = "php/utils.php?action=proposeAppointment";
 
   var modalBody = document.createElement('div');
   modalBody.classList.add('modal-body');
@@ -529,6 +540,7 @@ function createModal(id, header, time, date, radio) {
     inputDentist1.id = 'flexRadioDefault1';
     inputDentist1.classList.add('form-check-input');
     inputDentist1.name = 'flexRadioDoctor';
+    inputDentist1.value = "Kacper Farion";
   
     var labelDentist1 = document.createElement('label');
     labelDentist1.classList.add('form-check-label');
@@ -541,9 +553,10 @@ function createModal(id, header, time, date, radio) {
     var inputDentist2 = document.createElement('input');
     inputDentist2.type = 'radio';
     inputDentist2.id = 'flexRadioDefault2';
-    inputDentist2.classList.add('form-check-input');
+    inputDentist2.classList.add('form-check-input','check');
     inputDentist2.name = 'flexRadioDoctor';
     inputDentist2.checked = true;
+    inputDentist2.value = "Bartłomiej Kozieł";
   
     var labelDentist2 = document.createElement('label');
     labelDentist2.classList.add('form-check-label');
@@ -594,8 +607,9 @@ function createModal(id, header, time, date, radio) {
   modalFooter.appendChild(proposalButton);
 
   modalContent.appendChild(modalHeader);
-  modalContent.appendChild(modalBody);
-  modalContent.appendChild(modalFooter);
+  modalForm.appendChild(modalBody);
+  modalForm.appendChild(modalFooter);
+  modalContent.appendChild(modalForm);
 
   modalDialog.appendChild(modalContent);
   modalContainer.appendChild(modalDialog);
@@ -620,11 +634,13 @@ function createModal(id, header, time, date, radio) {
     modalBody.appendChild(formCheck2);
 
     inputDentist1.addEventListener('change', function() {
-      selectedDentist = "Kacper Farion";
+      inputDentist1.classList.add('check');
+      inputDentist2.classList.remove('check');
     });
 
     inputDentist2.addEventListener('change',function () {
-      selectedDentist = "Bartłomiej Kozieł";
+      inputDentist2.classList.add('check');
+      inputDentist1.classList.remove('check');
     });
   }
   
