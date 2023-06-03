@@ -20,6 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Gabinet stomatologiczny</title>
     <script src='https://code.jquery.com/jquery-3.7.0.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
@@ -60,13 +61,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
+                    <li class="nav-item  to-change">
                         <a class="nav-link active" id="nav-link-change" aria-current="page" href="#">O nas</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item to-change">
                         <a class="nav-link" aria-current="page" href="#">Nasi lekarze</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item to-change">
                         <a class="nav-link" aria-current="page" href="#">Cennik</a>
                     </li>
                 </ul>
@@ -174,13 +175,149 @@
                 </div>
             </div>
         </section>
+        <section class="Offcanvas">
+    
+        </section>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script>
+        var login = getLoginFromCookie();
+        var functionalCode = getCookieValue("function");
+            if(functionalCode) {
+                switch(functionalCode) {
+                    case '10':
+                        loggedCustomer();
+                        var promiseName = getNameFromDB(login);
+                        var name = "";
+                        var promiseSurname = getSurnameFromDB(login);
+                        var surname = "";
+                        promiseName.then(nameAfter => {
+                            name = nameAfter;
+                        }).catch(error => {
+                            console.error('Error: ',error);
+                        });
+                        setTimeout(function() {
+                            addHeaderWithName(name);
+                        },200);
+                        promiseSurname.then(surnameAfter => {
+                            surname = surnameAfter;
+                        }).catch(error => {
+                            console.error('Error: ',error);
+                        });
+                        function getNameFromDB(login) {
+                            return fetch('php/utils.php?login=' + login + '&action=getName')
+                            .then(response => response.text())
+                            .then(data => {
+                                return data;
+                            })
+                            .catch(error => {
+                                console.error('Błąd: ', error);
+                                throw error;
+                            });
+                        }
+                        function getSurnameFromDB(login) {
+                            return fetch('php/utils.php?login=' + login + '&action=getSurname')
+                            .then(response => response.text())
+                            .then(data => {
+                                return data;
+                            })
+                            .catch(error => {
+                                console.error('Błąd: ', error);
+                                throw error;
+                            });
+                        }
+                        properCreateCalendar();
+                        $('#datetimepicker1').timepicker({
+                            timeFormat: 'H:i',
+                            minTime: '8:00',
+                            maxTime: '20:00'
+                        });
+                        $(function() {
+                            $("#datetimepicker2").datepicker({
+                                dateFormat: "yy-mm-dd",
+                                beforeShow: function(input, inst) {
+                                setTimeout(function() {
+                                    inst.dpDiv.css({
+                                    zIndex: 9999
+                                    });
+                                }, 0);
+                                }
+                            });
+                            $("#anim").on("change", function() {
+                                $("#datetimepicker2").datepicker("option", "showAnim", $(this).val());
+                            });
+                        });
+                        document.getElementById('proposal-form').addEventListener('submit', function(event) {
+                            var dentysta = checkRadioButton('flexRadioDoctor');
+                            function checkRadioButton(name) {
+                                var response = {
+                                    status: 'success'
+                                }
+                                var formData = new FormData();
+                                var radioButtons = document.querySelectorAll('input[type="radio"][name="' + name + '"]');
+                                for(var i=0; i < radioButtons.length; i++) {
+                                    if(radioButtons[i].classList.contains("check")) {
+                                        var dentysta = radioButtons[i].value;
+                                        return dentysta;
+                                    }
+                                }
+                                return 'Błąd wybranego lekarza';
+                            }
+                            event.preventDefault();
+                            var isValid = validateProposalForm();
+                            if(document.getElementById('datetimepicker1').value) {
+                                if(isValid) {
+                                    setTimeout(function() {
+                                        var response = {
+                                            status: 'success'
+                                        };
+
+                                        if(response.status === 'success') {
+                                            var message = 'Wszystko się zgadza. Nastąpi przekierowanie!';
+                                            var formData = new FormData();
+                                            formData.append('login', login);
+                                            formData.append('name', name);
+                                            formData.append('surname', surname);
+                                            formData.append('date', document.getElementById('datetimepicker2').value);
+                                            formData.append('time', document.getElementById('datetimepicker1').value);
+                                            formData.append('doctor', dentysta);
+                                            fetch('php/utils.php?login=' + login + '&action=proposeAppointment', {
+                                                method: 'POST',
+                                                body: formData
+                                            })
+                                            .then(function(response) {
+                                                return response.json();
+                                            }) .then(function (data) {
+                                                if(data.status === 'success') {
+                                                    proposalAlertTriggering('Popozycja zakończona sukcesem. '+message, true);
+                                                    setTimeout(function() {
+                                                        window.location.href = 'php/propose-success.php';
+                                                    },2000)
+                                                } else {
+                                                    proposalAlertTriggering('Błąd podczas składania propozycji: '+data.message, false);
+                                                }
+                                            })
+                                        } else {
+                                            proposalAlertTriggering('Wystąpił błąd podczas składania propozycji!', false);
+                                        }
+                                    },2000);
+                                } else {
+                                proposalAlertTriggering('Dane niepoprawne! Popraw dane.', false);
+                                }
+                            }
+                        });
+                    break;
+                    case '3':
+                        loggedSecretary();
+                    break;
+                }
+            }
+    </script>
+    
     <script>
         document.getElementById('register-form').addEventListener('submit', function(event) {
             event.preventDefault();
             var isValid = validateRegistrationForm();
-
             if (isValid) {
                 setTimeout(function() {
                     var response = {
@@ -194,7 +331,7 @@
                         formData.append('haslo-register', document.getElementById('inputPassword-register').value);
                         formData.append('email', document.getElementById('email-register').value);
                         formData.append('phone-number', document.getElementById('phone-register').value);
-                        formData.append('past-treatment', document.getElementById('past-treatment-registration').value);
+                        //formData.append('past-treatment', document.getElementById('past-treatment-registration').value);
                         formData.append('nameRegister', document.getElementById('name-register').value);
                         formData.append('surnameRegister', document.getElementById('surname-register').value);
                         fetch('php/utils.php?action=register', {
@@ -230,109 +367,6 @@
     <?php
         $test = sprawdzCiasteczko();
         json_encode($test);
-        echo $test;
     ?>
-    <script>
-        var ciasteczko =<?php echo json_encode($test) ?>;
-
-        if (ciasteczko) {
-            var functionalCode = getCookieValue("function");
-            switch(functionalCode) {
-                case '10' :
-                    loggedCustomer();
-                    var login = getLoginFromCookie();
-                    getNameFromDB(login);
-
-                    function getNameFromDB(login) {
-                        fetch('php/utils.php?login=' + login + "&action=getName")
-                        .then(response => response.text())
-                        .then(data => {
-                            addHeaderWithName(data);
-                        })
-                        .catch(error => {
-                            console.error('Błąd: ', error);
-                        });
-                    }
-
-                    properCreateCalendar();
-                    $('#datetimepicker1').timepicker({
-                        timeFormat: 'H:i',
-                        minTime: '8:00',
-                        maxTime: '20:00'
-                    });
-                    $(function() {
-                        $("#datetimepicker2").datepicker({
-                            dateFormat: "yy-mm-dd",
-                            beforeShow: function(input, inst) {
-                            setTimeout(function() {
-                                inst.dpDiv.css({
-                                zIndex: 9999
-                                });
-                            }, 0);
-                            }
-                        });
-                        $("#anim").on("change", function() {
-                            $("#datetimepicker2").datepicker("option", "showAnim", $(this).val());
-                        });
-                    });
-                    document.getElementById('proposal-form').addEventListener('submit', function(event){
-                        event.preventDefault();
-                        var isValidProposal = validateProposalForm();
-                        if(isValidProposal) {
-                            var name = getCookieValue("name");
-                            var surname = getCookieValue("surname");
-                            var doctor = checkRadioButton("flexRadioDoctor");
-                            
-                            function checkRadioButton(name) {
-                                var text = 'input[type="radio"][name="' + name + '"]';
-                                var radioButtons = document.querySelectorAll(text);
-                                for(var i=0; i < radioButtons.length; i++) {
-                                    if(radioButtons[i].classList.contains("check")) {
-                                        var lekarz = radioButtons[i].value;
-                                        return lekarz;
-                                    }
-                                }
-                                return "Błąd - nie wybrano lekarza";
-                            }
-                                var response = {
-                                    status: 'success'
-                                };
-
-                                if (response.status === 'success') {
-                                    var message = 'Wszystkie dane są poprawne. Nastąpi przekierowanie!';
-                                    var formData = new FormData();
-                                    var time = document.getElementById('datetimepicker1').value;
-                                    var date = document.getElementById('datetimepicker2').value
-                                    formData.append('login', login);
-                                    formData.append('name', name);
-                                    formData.append('surname', surname);
-                                    formData.append('doctor', doctor);
-                                    formData.append('date', date);
-                                    formData.append('time', time);
-
-                                    fetch('php/utils.php?action=proposeAppointment', {
-                                        method: 'POST',
-                                        body: formData
-                                    }).then(function(response) {
-                                        return response.json();
-                                    }).then(function(data) {
-                                        if (data.status === 'success') {
-                                            proposalAlertTriggering('Propozycja spotkania zakończona sukcesem. '+message, true);
-                                            setTimeout(function() {
-                                                window.location.href = 'php/proposal-success.php';
-                                            },3000)
-                                        } else {
-                                            proposalAlertTriggering('Błąd podczas składania propozycji: ' + data.message, false);
-                                        }
-                                    })
-                                } else {
-                                    proposalAlertTriggering('Wystąpił błąd podczas składania propzycji!', false);
-                                }
-                        }
-                    });
-                break;
-            }
-        }
-    </script>
   </body>
 </html>

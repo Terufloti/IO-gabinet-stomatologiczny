@@ -112,12 +112,13 @@ function validateRegistrationForm() {
 }
 
 function validateProposalForm() {
-  var date = document.getElementById('datetimepicker1');
-  var time = document.getElementById('datetimepicker2');
+  var time = document.getElementById('datetimepicker1').value;
+  var date = document.getElementById('datetimepicker2').value;
   var isValid = true;
 
   const hour = parseInt(time);
-  if(!isNaN(hour) && hour >=8 && hour <= 20) {
+  console.log('Czas wewnątrz validateProposalForm: '+hour);
+  if((isNaN(hour)) || hour < 8 && hour > 20) {
     document.getElementById('datetimepicker1').classList.remove('is-valid');
     document.getElementById('datetimepicker1').classList.add('is-invalid');
     document.getElementById('timeAlertPlaceholder-success').textContent = '';
@@ -132,8 +133,11 @@ function validateProposalForm() {
   }
 
   var currentDate = new Date();
-  var inputDate = new Date(date);
-  if(inputDate < currentDate) {
+  var currentDateString = currentDate.toISOString().split('T')[0];
+  
+  console.log('Aktualna data: '+currentDateString);
+  console.log('Data podana: '+date);
+  if(date < currentDate || !(date)) {
     document.getElementById('datetimepicker2').classList.remove('is-valid');
     document.getElementById('datetimepicker2').classList.add('is-invalid');
     document.getElementById('dateAlertPlaceholder-success').textContent = '';
@@ -159,9 +163,6 @@ function proposalAlertTriggering(message, isValid) {
   }
   alertPlaceholder.innerHTML = alertHTML;
 }
-
-
-
 
 function alertTriggering(message, isValid) {
   var alertPlaceholder = document.getElementById('alert-placeholder');
@@ -418,27 +419,126 @@ function createLogoutButton() {
       location.reload();
     });
   }
+}
+function removeElementsWithClass(className) {
+  var elements = document.getElementsByClassName(className);
+  while (elements.length > 0) {
+    elements[0].parentNode.removeChild(elements[0]);
+  }
+}
 
+function addElementToNavbar(content, elementType, ...additionalArgs) { 
+  //kolejność dodatkowych argumentów ustalamy na: typ/id/wygląd/toggle/data-bs-target/aria-controls/czy powiadomienia/typ powiadomien(okrągłe czy nie)/wygląd powiadomien/funkcja zliczająca
+  var navbarUl = document.querySelector('.navbar-nav');
+  if(navbarUl) {
+    var newLi = document.createElement('li');
+    newLi.classList.add('nav-item');
+    var newElement = document.createElement(elementType);
+    newElement.textContent = content;
+    if(elementType === 'button') {
+      if(additionalArgs.length > 0) {
+        var buttonType = additionalArgs[0];
+        var buttonId = additionalArgs[1];
+        var buttonLayout = additionalArgs[2];
+        var buttonToggle = additionalArgs[3];
+        var bs_target = additionalArgs[4];
+        var aria_controls = additionalArgs[5];
+        var ifNotify = additionalArgs[6];
+        var notifyType = additionalArgs[7];
+        var notifyLayout = additionalArgs[8];
+        CountFunc = additionalArgs[9];
+
+        if(buttonType) {
+          newElement.type = buttonType;
+        } if(buttonId) {
+          newElement.id = buttonId;
+        } if(buttonLayout) {
+          newElement.classList.add('btn',buttonLayout,'position-relative');
+        } if(buttonToggle) {
+          newElement.setAttribute('data-bs-toggle',buttonToggle);
+        } if(bs_target) {
+          newElement.setAttribute('data-bs-target','#'+bs_target);
+        } if(aria_controls) {
+          newElement.setAttribute('aria-controls',aria_controls);
+        } if(ifNotify) {
+          var newNotifications = document.createElement('span');
+          if(notifyType === 'rounded') {
+            if(notifyLayout) {
+              newNotifications.classList.add('position-absolute','top-0','start-100','translate-middle','badge','rounded-pill',notifyLayout);
+            } else {
+              newNotifications.classList.add('position-absolute','top-0','start-100','translate-middle','badge','rounded-pill','bg-primary');
+            }
+          } else {
+
+          }
+          if(CountFunc) {
+            var arg1 = additionalArgs[10];
+            var arg2 = additionalArgs[11];
+            if(arg1 && arg2) {
+              setTimeout(function() {
+                CountFunc(arg1, arg2)
+                .then(count => {
+                  newNotifications.textContent = count;
+                }).catch(error => {
+                  console.error('Błąd funkcji zliczającej wewnątrz addElementToNavbar: ',error);
+                })
+                newElement.appendChild(newNotifications);
+              },200);
+            }
+          }
+        }
+      }
+    }
+    newLi.appendChild(newElement);
+    navbarUl.appendChild(newLi);
+  }
+}
+function countProposalAppointments(db, table) {
+  return fetch('php/utils.php?action=countProposalAppointments&db='+db+'&table='+table, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: 'db=' + encodeURIComponent(db) + '&table=' + encodeURIComponent(table)
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Request failed. Status: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      return data.count;
+    })
+    .catch(error => {
+      throw new Error('Request failed: ' + error.message);
+    });
 }
 function loggedCustomer(){
-    var navLink = document.getElementById('nav-link-change');
-    if(navLink){
-      navLink.textContent = "Kalendarz"
-    }
-    createLogoutButton();
-
-    var navList = document.querySelector('.navbar-nav');
-    if(navList) {
-      var newButton = document.createElement('button');
-      newButton.type = 'button';
-      newButton.classList.add('btn', 'btn-outline-light');
-      newButton.textContent = 'Zaproponuj spotkanie';
-      newButton.setAttribute('data-bs-toggle', 'modal');
-      newButton.setAttribute('data-bs-target', '#proposalModal');
-      navList.appendChild(newButton);
-      createModal('proposalModal','Zaproponuj spotkanie','True','True','True');
-    }
+  var navLink = document.getElementById('nav-link-change');
+  if(navLink){
+    navLink.textContent = "Kalendarz"
   }
+  createLogoutButton();
+  var navList = document.querySelector('.navbar-nav');
+  if(navList) {
+    var newButton = document.createElement('button');
+    newButton.type = 'button';
+    newButton.classList.add('btn', 'btn-outline-light');
+    newButton.textContent = 'Zaproponuj spotkanie';
+    newButton.setAttribute('data-bs-toggle', 'modal');
+    newButton.setAttribute('data-bs-target', '#proposalModal');
+    navList.appendChild(newButton);
+    createModal('proposalModal','Zaproponuj spotkanie','True','True','True');
+  }
+}
+function loggedSecretary() {
+  createLogoutButton();
+  removeElementsWithClass('to-change');
+  addElementToNavbar('Pokaż propozycje','button','button','pokaz-propzycje-button','btn-outline-warning','offcanvas','proposalAppointmentsOffCanvas','offcanvasExample','True','rounded','bg-danger',countProposalAppointments,'spotkania','propozycje');
+  createOffCanvas('proposalAppointmentsOffCanvas','Propozycje spotkań');
+  loadOffCanvasBodySecretary('spotkania','propozycje');
+}
 function createModal(id, header, time, date, radio) {
   var modalContainer = document.createElement('div');
   modalContainer.classList.add('modal', 'fade', 'text-black');
@@ -575,11 +675,15 @@ function createModal(id, header, time, date, radio) {
   if(time) {
     inputGroupTime.appendChild(inputButtonTime);
     inputGroupTime.appendChild(inputTime);
+    inputGroupTime.appendChild(timeAlertPlaceholderFail);
+    inputGroupTime.appendChild(timeAlertPlaceholderSuccess);
   }
   
   if(date) {
     inputGroupDate.appendChild(inputButtonDate);
     inputGroupDate.appendChild(inputDate);
+    inputGroupDate.appendChild(dateAlertPlaceholderFail);
+    inputGroupDate.appendChild(dateAlertPlaceholderSuccess);
   }
   
   var alertPlaceholder = document.createElement('div');
@@ -619,14 +723,10 @@ function createModal(id, header, time, date, radio) {
 
   if(time) {
     modalBody.appendChild(inputGroupTime);
-    modalBody.appendChild(timeAlertPlaceholderFail);
-    modalBody.appendChild(timeAlertPlaceholderSuccess);
     modalBody.appendChild(document.createElement('br'));
   }
   if(date) {
     modalBody.appendChild(inputGroupDate);
-    modalBody.appendChild(dateAlertPlaceholderFail);
-    modalBody.appendChild(dateAlertPlaceholderSuccess);
     modalBody.appendChild(document.createElement('br'));
   }
   if(radio) {
@@ -645,6 +745,152 @@ function createModal(id, header, time, date, radio) {
   }
   
   modalBody.appendChild(alertPlaceholder);
+}
+function createOffCanvas(id, title) {
+  var offcanvas = document.createElement('div');
+  offcanvas.classList.add('offcanvas', 'offcanvas-start');
+  offcanvas.setAttribute('data-bs-scroll', 'true');
+  offcanvas.setAttribute('tabindex', '-1');
+  offcanvas.setAttribute('id', id);
+
+  var offcanvasHeader = document.createElement('div');
+  offcanvasHeader.classList.add('offcanvas-header');
+
+  var offcanvasTitle = document.createElement('h5');
+  offcanvasTitle.classList.add('offcanvas-title');
+  offcanvasTitle.setAttribute('id', id + 'Label');
+  offcanvasTitle.textContent = title;
+
+  var closeButton = document.createElement('button');
+  closeButton.setAttribute('type', 'button');
+  closeButton.classList.add('btn-close');
+  closeButton.setAttribute('data-bs-dismiss', 'offcanvas');
+  closeButton.setAttribute('aria-label', 'Close');
+
+  offcanvasHeader.appendChild(offcanvasTitle);
+  offcanvasHeader.appendChild(closeButton);
+
+  var offcanvasBody = document.createElement('div');
+  offcanvasBody.classList.add('offcanvas-body');
+
+  offcanvas.appendChild(offcanvasHeader);
+  offcanvas.appendChild(offcanvasBody);
+
+  var section = document.querySelector('.Offcanvas');
+  section.appendChild(offcanvas);
+}
+function loadOffCanvasBodySecretary(db, table) {
+  return fetch('php/utils.php?action=showProposalAppointments&db=' + db + '&table=' + table, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: 'db=' + encodeURIComponent(db) + '&table=' + encodeURIComponent(table)
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Request failed. Status: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const offcanvasBody = document.querySelector('.offcanvas-body');
+      if (document.body.contains(offcanvasBody)) {
+        data.forEach(row => {
+          var buttonGroupCounter = `${row.rowNumber}`;
+          const brakeLine = document.createElement('br');
+          const rowElement = document.createElement('div');
+          rowElement.classList.add('row');
+          rowElement.id = buttonGroupCounter;
+
+          const cardElement = document.createElement('div');
+          cardElement.classList.add('card');
+
+          const cardBody = document.createElement('div');
+          cardBody.classList.add('card-body');
+          cardBody.textContent = `${row.name} ${row.surname}` + ' dnia ' + `${row.date}` + ' o godz. ' + `${row.time}` + ' z Dent. ' + `${row.doctor}`;
+
+          const rowButtonGroup = document.createElement('div');
+          rowButtonGroup.classList.add('btn-group');
+          rowButtonGroup.setAttribute('role', 'group');
+          rowButtonGroup.setAttribute('aria-label','offcanvasButtonGroup');
+          rowButtonGroup.id = 'offcanvasButtonGroup-'+buttonGroupCounter;
+          buttonGroupCounter ++;
+
+          const agreeButton = document.createElement('button');
+          agreeButton.type = 'button';
+          agreeButton.classList.add('btn','btn-outline-success');
+          agreeButton.textContent = 'Akceptuj';
+
+          const disagreeButton = document.createElement('button');
+          disagreeButton.type = 'button';
+          disagreeButton.classList.add('btn','btn-outline-danger');
+          disagreeButton.textContent = 'Odrzuć';
+
+          const proposeNewButton = document.createElement('button');
+          proposeNewButton.type = 'button';
+          proposeNewButton.classList.add('btn','btn-outline-warning');
+          proposeNewButton.textContent = 'Propozycja';
+
+          rowButtonGroup.appendChild(agreeButton);
+          rowButtonGroup.appendChild(proposeNewButton);
+          rowButtonGroup.appendChild(disagreeButton);
+          
+          cardElement.appendChild(cardBody);
+          rowElement.appendChild(cardElement);
+          rowElement.appendChild(brakeLine);
+          rowElement.appendChild(rowButtonGroup);
+
+          offcanvasBody.appendChild(rowElement);
+          offcanvasBody.appendChild(brakeLine);
+        });
+
+        const acceptButtons = document.querySelectorAll('#proposalAppointmentsOffCanvas .btn-group .btn-outline-success');
+        acceptButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            sendRowNumber(button, 'secretaryAcceptProposal');
+          });
+        });
+
+        const declineButtons = document.querySelectorAll('#proposalAppointmentsOffCanvas .btn-group .btn-outline-danger');
+        declineButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            sendRowNumber(button, 'secretaryDeclineProposal');
+          });
+        });
+      }
+    })
+    .catch(error => {
+      throw new Error('Request failed: ' + error.message);
+    });
+}
+
+function sendRowNumber(button,action) {
+  var btnGroup = button.parentNode;
+  var groupId = btnGroup.id;
+  const rowNumber = groupId.split('-')[1];
+
+  var formData = new FormData();
+  formData.append('rowNumber', rowNumber);
+
+  fetch('php/utils.php?action=' + action, {
+    method: 'POST',
+    body: formData,
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Request failed. Status: ' + response.status);
+      }
+      return response.json();
+    })
+    .then(data => {
+      location.reload();
+      const Offcanvas = document.querySelector('#proposalAppointmentsOffCanvas');
+      Offcanvas.classList.add('show');
+    })
+    .catch(error => {
+      console.error('Request failed:', error.message);
+    });
 }
 //======================================================================
 function getLoginFromCookie() {
